@@ -12,8 +12,8 @@ application-real-oauth.properties
 # Gradle
 # ------
 .gradle
-.idea/**/gradle.xml
-.idea/**/libraries
+#.idea/**/gradle.xml
+#.idea/**/libraries
 /build
 /buildSrc/build
 /buildSrc/subprojects/*/build
@@ -48,8 +48,8 @@ atlassian-ide-plugin.xml
 # IDEA
 # ----
 .idea
-.idea/*
-.idea/**/*
+#.idea/*
+#.idea/**/*
 .shelf
 /*.iml
 /*.ipr
