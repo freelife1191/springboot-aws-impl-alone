@@ -1,0 +1,12 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 638043754520-mk5bqp0t0q11himkh21n8tth111b0co5.apps.googleusercontent.com
+            client-secret: WTIG-ty11RWOqvgw3Kv7p3Yq
+            # openid라는 scope가 있으면 Open Id Provider로 인식함
+            # 네이버/카카오등의 서비스는 Open Id Provider 가 아니라 기본설정으로 하면 각각 Oauth2Service를 만들어야함
+            # 하나의 OAuth2Service로 사용하기 위해 일부러 openid scope를 빼고 등록
+            scope: profile,email
