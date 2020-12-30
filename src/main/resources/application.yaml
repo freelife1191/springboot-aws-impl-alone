@@ -1,6 +1,10 @@
 spring:
   profiles:
     include: oauth
+  session:
+    # spring-session-jdbc 디펜던시 추가하고 설정시
+    # JPA로 세션 테이블 자동 생성 설정
+    store-type: jdbc
   jpa:
     show-sql: true
     properties:
