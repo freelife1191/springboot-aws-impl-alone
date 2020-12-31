@@ -6,8 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.boot.test.context.SpringBootTest.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 /**
  * Created by KMS on 2020/12/30.
@@ -24,7 +23,7 @@ class IndexControllerTest {
         String body = this.restTemplate.getForObject("/", String.class);
         
         //then
-        assertThat(body).contains("스프링 부트로 시작하는 웹 서비스");
+        assertThat(body).contains("스프링부트로 시작하는 웹 서비스");
     }
 
 }

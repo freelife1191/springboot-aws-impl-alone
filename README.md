@@ -1,6 +1,6 @@
 # 스프링부트2로 웹서비스 출시하기
 
-## AWS 생성 및 셋팅
+## 06. AWS 생성 및 셋팅
 1. 인스턴스 Amazon Linux AMI 선택
 2. 스토리지 30GB
 3. 태그 Name  springboot-aws-impl-alone 추가
@@ -75,7 +75,7 @@ sudo vi /etc/hosts
 127.0.0.1   springboot-aws-impl-alone
 ```
 
-## AWS RDS
+## 07. AWS RDS
 
 MYSQL에서 MARIADB로 마이그레이션 해야 할 10가지 이유
 
@@ -158,3 +158,21 @@ mysql -u admin -p -h springboot-aws-impl-alone.caoklolkwzss.ap-northeast-2.rds.a
 ```sql
 show databases;
 ```
+
+## 08. EC2 서버에 프로젝트를 배포해 보자
+### EC2에 프로젝트 Clone 받기
+```bash
+sudo yum install git
+git --version
+mkdir ~/app && mkdir ~/app/step1
+cd ~/app/step1
+git clone https://github.com/freelife1191/springboot-aws-impl-alone.git
+cd springboot-aws-impl-alone
+```
+
+테스트로 검증
+```bash
+./gradlew test
+```
+
+### 배포 스크립트 만들기
