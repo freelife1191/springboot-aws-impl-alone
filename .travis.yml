@@ -24,10 +24,21 @@ script: "./gradlew clean build"
 # CodeDeploy는 Jar 파일은 인식하지 못하므로 Jar+ 기타 설정 파일들을 모아 압축(zip) 한다
 before_deploy:
   # 현재 위치의 모든 파일을 해당 이름으로 압축 명령어의 마지막 위치는 본인의 프로젝트 이름
-  - zip -r springboot-aws-impl-alone *
+  #- zip -r springboot-aws-impl-alone *
   # deploy라는 디렉토리를 Travis CI가 실행 중인 위치에서 생성
-  - mkdir -p deploy
-  - mv springboot-aws-impl-alone.zip deploy/springboot-aws-impl-alone.zip
+  #- mkdir -p deploy
+  #- mv springboot-aws-impl-alone.zip deploy/springboot-aws-impl-alone.zip
+  # Travis CI는 S3로 특정 파일만 업로드가 안됨
+  # 디렉토리 단위로만 업로드할 수 있기 때문에 deploy 디렉토리는 항상 생성함
+  - mkdir -p before-deploy # zip에 포함시킬 파일들을 담을 디렉토리 생성
+  # before-deploy에는 zip 파일에 포함시킬 파일들을 저장한다
+  - cp scripts/*.sh before-deploy/
+  - cp appspec.yml before-deploy/
+  - cp build/libs/*.jar before-deploy/
+  # zip -r 명령어를 통해 before-deploy 디렉토리 전체 파일을 압축한다
+  - cd before-deploy && zip -r before-deploy * # before-deploy로 이동후 전체 압축
+  - cd ../ && mkdir -p deploy # 상위 디렉토리로 이동후 deploy 디렉토리 생성
+  - mv before-deploy/before-deploy.zip deploy/springboot-aws-impl-alone.zip # deploy로 zip파일 이동
 
 #  AKIAYQADAJ6H5OSQUYA7
 #  QrHVI8qY6Go8lUidG2i0I/JpH+k/PQ18qFZpmfs7
