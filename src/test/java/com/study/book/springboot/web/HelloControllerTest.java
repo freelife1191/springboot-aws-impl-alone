@@ -1,11 +1,12 @@
 package com.study.book.springboot.web;
 
-import org.apache.catalina.security.SecurityConfig;
+import com.study.book.springboot.config.auth.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
@@ -26,6 +27,10 @@ public class HelloControllerTest {
     @Autowired
     private MockMvc mvc;
     
+    // 인증된 모의(가짜) 사용자를 만들어서 사용
+    // roles에 권한을 추가할 수 있음
+    // 이 어노테이션으로 인해 ROLE_USER 권한을 가진 사용자가 API를 요청하는 것과 동일한 효과를 가짐
+    @WithMockUser(roles="USER")
     @Test
     public void hello가_리턴된다() throws Exception {
         String hello = "hello";
@@ -35,6 +40,7 @@ public class HelloControllerTest {
                 .andExpect(content().string(hello));
     }
     
+    @WithMockUser(roles="USER")
     @Test
     public void helloDto가_리턴된다() throws Exception {
         String name = "hello";
