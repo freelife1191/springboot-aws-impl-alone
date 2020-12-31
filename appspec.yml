@@ -8,7 +8,7 @@ files:
   - source:  /
     # source에서 지정된 파일을 받은 위치
     # 이후 Jar를 실행하는 등은 destination에서 옮긴 파일들로 진행됨
-    destination: /home/ec2-user/app/step3/zip/
+    destination: /home/ec2-user/app/step2/zip/
     # 기존에 파일들이 있으면 덮어쓸지 결정함
     # 현재 yes라고 했으니 파일을 덮어씀
     overwrite: yes
