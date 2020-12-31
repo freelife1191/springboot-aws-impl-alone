@@ -580,7 +580,34 @@ version '1.0.1-SNAPSHOT-'+new Date().format("yyyyMMddHHmmss")
 최종 코드를 깃 허브에 푸시하여 배포가 자동으로 진행되면 CodeDeploy 로그로 잘 진행되는지 확인
 
 ```bash
-tail -f /opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log
+$ tail -f /opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log
+[2021-01-01 07:46:02.862] [d-U9XUHMOK7]LifecycleEvent - AfterInstall
+[2021-01-01 07:46:02.863] [d-U9XUHMOK7]Script - stop.sh
+[2021-01-01 07:46:02.912] [d-U9XUHMOK7][stdout]> 8082 에서 구동중인 애플리케이션 pid 확인
+[2021-01-01 07:46:02.953] [d-U9XUHMOK7][stdout]> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다.
+[2021-01-01 07:46:03.644] [d-U9XUHMOK7]LifecycleEvent - ApplicationStart
+[2021-01-01 07:46:03.644] [d-U9XUHMOK7]Script - start.sh
+[2021-01-01 07:46:03.658] [d-U9XUHMOK7][stdout]> Build 파일 복사
+[2021-01-01 07:46:03.658] [d-U9XUHMOK7][stdout]> cp /home/ec2-user/app/step3/zip/*.jar /home/ec2-user/app/step3/
+[2021-01-01 07:46:03.716] [d-U9XUHMOK7][stdout]> 새 어플리케이션 배포
+[2021-01-01 07:46:03.719] [d-U9XUHMOK7][stdout]> JAR Name: /home/ec2-user/app/step3/springboot-aws-impl-alone-1.0.1-SNAPSHOT-20201231224442.jar
+[2021-01-01 07:46:03.719] [d-U9XUHMOK7][stdout]> /home/ec2-user/app/step3/springboot-aws-impl-alone-1.0.1-SNAPSHOT-20201231224442.jar 에 실행권한 추가
+[2021-01-01 07:46:03.720] [d-U9XUHMOK7][stdout]> /home/ec2-user/app/step3/springboot-aws-impl-alone-1.0.1-SNAPSHOT-20201231224442.jar 실행
+[2021-01-01 07:46:03.784] [d-U9XUHMOK7][stdout]> /home/ec2-user/app/step3/springboot-aws-impl-alone-1.0.1-SNAPSHOT-20201231224442.jar 를 profile=real2 로 실행합니다.
+[2021-01-01 07:46:04.707] [d-U9XUHMOK7]LifecycleEvent - ValidateService
+[2021-01-01 07:46:04.708] [d-U9XUHMOK7]Script - health.sh
+[2021-01-01 07:46:04.871] [d-U9XUHMOK7][stdout]> Health Check Start!
+[2021-01-01 07:46:04.871] [d-U9XUHMOK7][stdout]> IDLE_PORT: 8082
+[2021-01-01 07:46:04.871] [d-U9XUHMOK7][stdout]> curl -s http://localhost:8082/profile
+[2021-01-01 07:46:14.930] [d-U9XUHMOK7][stdout]> Health check의 응답을 알 수 없거나 혹은 실행 상태가 아닙니다.
+[2021-01-01 07:46:14.930] [d-U9XUHMOK7][stdout]> Health check:
+[2021-01-01 07:46:14.930] [d-U9XUHMOK7][stdout]> Health check 연결 실패. 재시도...
+[2021-01-01 07:46:25.251] [d-U9XUHMOK7][stdout]> Health check 성공
+[2021-01-01 07:46:25.282] [d-U9XUHMOK7][stdout]> 전환할 Port: 8082
+[2021-01-01 07:46:25.283] [d-U9XUHMOK7][stdout]> Port 전환
+[2021-01-01 07:46:25.295] [d-U9XUHMOK7][stdout]set $service_url http://127.0.0.1:8082;
+[2021-01-01 07:46:25.296] [d-U9XUHMOK7][stdout]> 엔진엑스 Reload
+[2021-01-01 07:46:25.315] [d-U9XUHMOK7][stderr]Redirecting to /bin/systemctl reload nginx.service
 ```
 
 스프링 부트 로그 확인
