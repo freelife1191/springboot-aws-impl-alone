@@ -346,7 +346,7 @@ CodeDeploy에서 EC2에 접근하려면 권한이 필요
    - 오토 스케일링 그룹 배포, 블루 그린 배포, 롤링 배포, EC2 단독 배포 등 많은 기능을 지원
    
 1. CodeDeploy 서비스에서 애플리케이션 생성 버튼 클릭
-2. 애플리케이션 이름 - springboot-aws-impl-alone EC2/온프레미스 선택 후 생성
+2. 애플리케이션 이름 - springboot-aws-impl-alone EC2/온프레미스 선정택 후 생성
 3. 배포 그룹 생성 버튼 클릭 
 4. 배포 그룹 이름 입력 springboot-aws-impl-alone-group 
 5. 서비스 역할 선택 codedeploy-role
@@ -366,6 +366,26 @@ Travis CI의 설정은 .travis.yml로 진행
 AWS CodeDeploy의 설정은 appspec.yml로 진행
 
 1. EC2 접속해서 디렉토리 생성
+
 ```bash
 mkdir ~/app/step2 && mkdir ~/app/step2/zip
+```
+
+2. .travis.yml codedeploy deploy 스크립트 추가
+3. .appspec.yml 파일 추가
+3. 푸시 및 배포 테스트
+
+### 배포 자동화 구성
+1. deploy.sh step2 추가
+2. .travis.yml 파일 before_deploy 스크립트 수정
+3. appspec.yml 파일 수정
+4. build.gradle version 업데이트
+
+### 로그 확인
+
+디렉토리 명은 CodeDeploy ID
+
+로그 확인 디렉토리
+```bash
+cd /opt/codedeploy-agent/deployment-root
 ```
