@@ -8,7 +8,7 @@ files:
   - source:  /
     # source에서 지정된 파일을 받은 위치
     # 이후 Jar를 실행하는 등은 destination에서 옮긴 파일들로 진행됨
-    destination: /home/ec2-user/app/step2/zip/
+    destination: /home/ec2-user/app/step3/zip/
     # 기존에 파일들이 있으면 덮어쓸지 결정함
     # 현재 yes라고 했으니 파일을 덮어씀
     overwrite: yes
@@ -23,7 +23,19 @@ permissions:
 # ApplicationStart라는 단계에서 deploy.sh를 ec2-user 권한으로 실행하게 함
 # timeout: 60 으로 스크립트 실행 60초 이상 수행되면 실패가 됨
 hooks:
+#  ApplicationStart:
+#    - location: deploy.sh
+#      timeout: 60
+#      runas: ec2-user
+  AfterInstall:
+    - location: stop.sh # 엔진엑스와 연결되어 있지 않은 스프링 부트를 종료합니다.
+      timeout: 60
+      runas: ec2-user
   ApplicationStart:
-    - location: deploy.sh
+    - location: start.sh # 엔진엑스와 연결되어 있지 않은 Port로 새 버전의 스프링 부트를 시작합니다.
+      timeout: 60
+      runas: ec2-user
+  ValidateService:
+    - location: health.sh # 새 스프링 부트가 정상적으로 실행됐는지 확인 합니다.
       timeout: 60
       runas: ec2-user

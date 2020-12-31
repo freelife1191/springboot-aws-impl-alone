@@ -5,6 +5,7 @@ plugins {
 }
 
 group 'org.study.book'
+// 여러 문법을 사용할 수 있는데 new Date()로 빌드할때마다 그 시간이 버전에 추가되도록 구성함
 version '1.0.1-SNAPSHOT-'+new Date().format("yyyyMMddHHmmss")
 sourceCompatibility = 1.8
 

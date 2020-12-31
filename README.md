@@ -495,3 +495,110 @@ systemctl status nginx.service
 ```
 
 80 포트로 웹 접속 확인
+
+### 무중단 배포 스크립트 만들기
+
+1. profile API 추가
+2. real1, real2 profile 생성
+3. 엔진엑스 설정 수정
+
+배포 때마다 Nginx의 프록시 설정(스프링 부트로 요청을 훌려보내는)이 순식간에 교체됨
+
+프록시 설정이 교체될 수 있도록 설정을 추가
+
+```bash
+sudo vi /etc/nginx/conf.d/service-url.inc
+```
+
+다음 코드 입력
+
+```
+set $service_url http://127.0.0.1:8080;
+```
+
+저장하고 종료한뒤 nginx.conf 파일 열기
+
+```bash
+sudo vi /etc/nginx/nginx.conf
+```
+
+location / 부분을 찾아 변경
+
+```
+include /etc/nginx/conf.d/service-url.inc;
+
+location / {
+        proxy_pass $service_url;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+}
+```
+
+저장하고 종료한뒤 재시작
+
+```bash
+sudo service nginx restart
+systemctl status nginx.service
+```
+
+4. 배포 스크립트들 작성
+
+EC2에 step3 디렉토리를 생성
+
+```bash
+mkdir ~/app/step3 && mkdir ~/app/step3/zip
+```
+
+appspec.yml 의 destination 변경
+
+```yaml
+destination: /home/ec2-user/app/step3/zip/
+```
+
+무중단 배포 스크립트 5개
+- stop.sh: 기존 Nginx에 연결되어 있진 않지만 실행중이던 스프링 부트 종료
+- start.sh: 배포할 신규 버전 스프링 부트 프로젝트를 stop.sh로 종료한 'profile'로 실행
+- health.sh: 'start.sh'로 실행시킨 프로젝트가 정상적으로 실행됐는지 체크
+- switch.sh: Nginx가 바라보는 스프링 부트를 최신 버전으로 변경
+- profile.sh: 앞선 4개 스크립트 파일에서 공용으로 사용할 'profile'과 포트 체크 로직
+
+appspec.yml 의 hook 스크립트 추가 AfterInstall, ApplicationStart, ValidateServce
+
+jar 파일이 복사된 이후부터 차례로 스크립트들이 실행됨
+
+5. 무중단 배포 테스트
+
+build.gradle 의 version 수정
+
+여러 문법을 사용할 수 있는데 new Date()로 빌드할때마다 그 시간이 버전에 추가되도록 구성함
+
+```groovy
+version '1.0.1-SNAPSHOT-'+new Date().format("yyyyMMddHHmmss")
+```
+
+최종 코드를 깃 허브에 푸시하여 배포가 자동으로 진행되면 CodeDeploy 로그로 잘 진행되는지 확인
+
+```bash
+tail -f /opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log
+```
+
+스프링 부트 로그 확인
+
+```bash
+cat ~/app/step3/nohup.out
+```
+
+한번 더 배포하면 real2로 배포됨
+
+이 과정에서 브라우저 새로고침을 해보면 전혀 중단 없는 것을 확인할 수 있음
+
+2번 배포를 진행한 뒤에 다음과 같이 자바 애플리케이션 실행 여부를 확인하여 2개의 애플리케이션 실행 확인
+
+```bash
+ps -ef | grep java
+```
+
+이제 이 시스템은 마스터 브랜치에 푸시가 발생하면 자동으로 서버 배포가 진행되고
+
+서버중단 역시 전혀 없는 시스템이 되었음
