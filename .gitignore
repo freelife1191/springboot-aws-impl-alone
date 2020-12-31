@@ -8,6 +8,7 @@ transaction-logs/
 files/
 *.db
 application-oauth.yml
+application-real-db.yml
 
 # Gradle
 # ------
