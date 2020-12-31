@@ -389,3 +389,109 @@ mkdir ~/app/step2 && mkdir ~/app/step2/zip
 ```bash
 cd /opt/codedeploy-agent/deployment-root
 ```
+
+## 10. 24시간 365일 중단 없는 서비스를 만들자
+무중단 배포 방식 2가지
+- AWS에서 블루그린 무중단 배포
+- 도커를 이용한 웹서비스 무중단 배포
+
+리버스 프록시 - 외부의 요청을 받아 백엔드 서버로 요청을 전달하는 행위
+
+구조 - 하나의 EC2 혹은 리눅스 서버에 Nginx 1대와 스프링 부트 Jar를 2대 사용
+- 엔진엑스는 80(http), 443(https) 포트를 할당
+- 스프링 부트1은 8081포트로 실행
+- 스프링 부트2는 8082포트로 실행
+
+### Nginx 무중단 배포 1
+
+![10-1](img/freelec-springboot-chap10-1.jpeg)
+
+운영과정
+
+1. 사용자는 서비스 주소로 접속(80 혹은 443)
+2. Nginx는 사용자의 요청을 받아 현재 연결된 스프링 부트로 요청을 전달
+    - 스프링 부트1 즉 8081 포트로 요청을 전달한다고 가정
+3. 스프링 부트2는 엔진엑스와 연결된 상태가 아니니 요청을 받지 못함
+
+### Nginx 무중단 배포1
+ 1.1 버전으로 신규 배포가 필요하면, Nginx와 연결되지 않은 스프링 부트2(8082 포트)로 배포
+
+![10-2](img/freelec-springboot-chap10-2.jpeg)
+
+1. 배포하는 동안에도 서비스는 중단되지 않음
+    - Nginx는 스프링 부트1을 바라보기 때문
+2. 배포가 끝나고 정상적으로 스프링 부트2가 구동 중인지 확인
+3. 스프링 부트2가 정상 구동 중이면 nginx reload 명령어를 통해 8081 대신에 8082를 바라보도록 한다
+4. nginx reload는 0.1초 이내에 완료됨
+
+### Nginx 무중단 배포3
+1.2 버전 배포가 필요하면 이번에는 스프링 부트1로 배포
+
+![10-3](img/freelec-springboot-chap10-3.jpeg)
+
+1. 현재는 Nginx와 연결된 것이 스프링 부트2
+2. 스프링 부트1의 배포가 끝났다면 Nginx가 스프링 부트1을 바라보도록 변경하고 nginx reload를 실행
+3. 이후 요청부터는 Nginx가 스프링 부트1로 요청을 전달
+
+### 무중단 배포 전체 구조
+
+![10-4](img/freelec-springboot-chap10-4.jpeg)
+
+## Nginx 설치와 스프링 부트 연동하기
+
+1. Nginx 설치
+
+```bash
+sudo yum install nginx -y
+# 아마존 리눅스2
+sudo amazon-linux-extras install -y nginx1
+```
+
+2. Nginx 실행
+
+```bash
+sudo service nginx start
+```
+
+3. EC2 보안 그룹 추가
+    - EC2 -> 보안 그룹 -> EC2 보안 그룹 선택 -> 인바운드 편집 -> 80번 포트 추가
+4. 리다이렉션 주소 추가
+    - 구글 로그인 인증과 네이버 로그인 인증 URL의 포트를 80으로 변경
+5. 접속하여 Nginx 화면 확인
+
+6. Nginx와 스프링 부트 연동
+
+```bash
+sudo vi /etc/nginx/nginx.conf
+```
+
+nginx.conf location 설정 추가
+    - proxy_pass
+        - Nginx로 요청이 오면 http://localhost:8080로 전달함
+    - proxy_set_header XXX
+        - 실제 요청 데이터를 header의 항목에 할당함
+        - 
+```
+http {
+    server {
+        ...
+        location / {
+                proxy_pass http://localhost:8080;
+                # IP에 요청자의 IP를 저장
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+        }
+        ...
+    }
+}
+```
+
+Nginx 재시작
+
+```bash
+sudo service nginx restart
+systemctl status nginx.service
+```
+
+80 포트로 웹 접속 확인
