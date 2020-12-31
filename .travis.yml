@@ -20,6 +20,40 @@ cache:
 # 여기서는 프로젝트 내부에 둔 gradlew을 통해 clean & build를 수행
 script: "./gradlew clean build"
 
+# deploy 명령어가 실행되기 전에 수행됨
+# CodeDeploy는 Jar 파일은 인식하지 못하므로 Jar+ 기타 설정 파일들을 모아 압축(zip) 한다
+before_deploy:
+  # 현재 위치의 모든 파일을 해당 이름으로 압축 명령어의 마지막 위치는 본인의 프로젝트 이름
+  - zip -r springboot-aws-impl-alone *
+  # deploy라는 디렉토리를 Travis CI가 실행 중인 위치에서 생성
+  - mkdir -p deploy
+  - mv springboot-aws-impl-alone.zip deploy/springboot-aws-impl-alone.zip
+
+#  AKIAYQADAJ6H5OSQUYA7
+#  QrHVI8qY6Go8lUidG2i0I/JpH+k/PQ18qFZpmfs7
+# S3로 파일 업로드 혹은 CodeDeploy로 배포 등 외부 서비스와 연동될 행위들을 선언
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
+    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
+    bucket: freelec-springboot-build # S3 버킷
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private # zip 파일 접근을 private으로
+    local_dir: deploy # before_deploy에서 생성한 디렉토리 해당위치 파일들만 S3로 전송
+    wait-until-deployed: true
+
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY # Travis repo settings에 설정된 값
+    secret_access_key: $AWS_SECRET_KEY # Travis repo settings에 설정된 값
+    bucket: freelec-springboot-build1191 # S3 버킷
+    key: springboot-aws-impl-alone.zip # 빌드 파일을 압축해서 전달
+    bundle_type: zip
+    application: springboot-aws-impl-alone # 웹 콘솔에서 등록한 CodeDeploy 어플리케이션
+    deployment_group: springboot-aws-impl-alone-group # 웹 콘솔에서 등록한 CodeDeploy 배포 그룹
+    region: ap-northeast-2
+    wait-until-deployed: true
+
 # CI 실행 완료시 메일로 알람
 notifications:
   email:

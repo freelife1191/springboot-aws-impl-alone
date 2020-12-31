@@ -250,3 +250,122 @@ Travis CI 웹서비스 설정
 프로젝트 설정
 
 1. .travis.yml 생성
+2. push 후 travis 웹에서 확인
+
+### Travis CI 와 AWS S3 연동하기
+Travis CI 연동시 구조
+
+![9-1](img/freelec-springboot-chap9-1.jpeg)
+
+1. AWS Key 발급
+   - IAM - 사용자 - 사용자 추가
+   - 사용자 이름 freelect-travis-deploy 기입
+   - 프로그래밍 방식 엑세스 체크
+   - 기존 정책 직접 연결 선택
+   - AmazonS3FullAccess 체크
+   - AWSCodeDeployFullAccess 체크
+   - 태그 Name - freelect-travis-deploy 추가
+2. Travis CI에 키 등록
+   - Travis CI에서 More Options 클릭후 Settings
+   - Environment Variables 에 AWS_ACCESS_KEY, AWS_SECRET_KEY 등록
+3. S3 버킷 생성
+   - 버킷 이름 freelect-springboot-build
+   - 모든 퍼블릭 엑세스 차단 체크
+4. .travis.yml 추가
+
+### Travis CI와 AWS S3, CodeDeploy 연동하기
+EC2에 IAM 역할 추가하기
+
+- 역할
+   - AWS 서비스에만 할당할 수 있는 권한
+   - EC2, CodeDeploy, SQS 등
+- 사용자
+   - AWS 서비스 외에 사용할 수 있는 권한
+   - 로컬 PC, IDC 서버 등
+
+1. 역할 - 역할 만들기
+2. AWS 서비스 - EC2 
+3. AmazonEc2RoleforAWSCodeDeploy
+4. 태그 본인이 원하는 이름으로 추가 ec2-codedeploy-role
+5. 검토에서 마지막으로 역할의 이름을 등록하고 나머지 등록 정보를 최종적으로 확인
+
+EC2 서비스에 등록
+
+1. EC2 인스턴스 목록으로 이동
+2. 마우스 우클릭 후 보안 -> IAM 역할 수정 - 생성한 역할 선택
+3. 인스턴스 재부팅
+
+CodeDeploy 에이전트 설치
+
+1. EC2에 접속해서 입력해서 에이전드 다운로드
+
+```bash
+aws s3 cp s3://aws-codedeploy-ap-northeast-2/latest/install . --region ap-northeast-2
+```
+
+2. 실행권한 추가
+```bash
+chmod +x ./install
+```
+
+3. ruby 설치
+   
+```bash
+sudo yum install ruby -y
+```
+
+4. install 파일로 설치 진행
+
+```bash
+sudo ./install auto
+```
+
+5. Agent가 정상적으로 실행되고 있는지 상태 검사
+
+```bash
+sudo service codedeploy-agent status
+```
+
+### CodeDeploy를 위한 권한 생성
+CodeDeploy에서 EC2에 접근하려면 권한이 필요
+
+1. AWS에서 IAM 역할 생성 역할 - 역할 만들기 - AWS 서비스 - CodeDeploy 선택
+2. 태그 추가 Name - codedeploy-role 
+3. 검토 역할 이름 codedeploy-role
+
+### CodeDeploy 생성
+- Code Commit
+   - 깃허브와 같은 코드 저장소의 역할
+   - 프라이빗 기능을 지원한다는 강점이 있지만 현재 깃허브에서 **무료로 프라이빗 지원**을 하고 있어서 거의 사용되지 않음
+- Code Build
+   - Travis CI와 마찬가지로 **빌드용 서비스**
+   - 멀티 모듈을 배포해야 하는 경우 사용해 볼만하지만 규모가 있는 서비스에서는 대부분 젠킨스/팀시티 등을 이용하니 이것 역시 사용할 일이 거의 없음
+- CodeDeploy
+   - AWS의 배포 서비스
+   - 앞에서 언급한 다른 서비스들은 대체재가 있지만 CodeDeploy는 **대체재가 없음**
+   - 오토 스케일링 그룹 배포, 블루 그린 배포, 롤링 배포, EC2 단독 배포 등 많은 기능을 지원
+   
+1. CodeDeploy 서비스에서 애플리케이션 생성 버튼 클릭
+2. 애플리케이션 이름 - springboot-aws-impl-alone EC2/온프레미스 선택 후 생성
+3. 배포 그룹 생성 버튼 클릭 
+4. 배포 그룹 이름 입력 springboot-aws-impl-alone-group 
+5. 서비스 역할 선택 codedeploy-role
+6. 배포 유형 현재 위치 선택
+7. 환경 구성 Amazon Ec2 인스턴스 체크
+8. 키 Name , 값 springboot-aws-impl-alone 태그 추가
+9. 배포 설정 - CodeDeployDefault.AllAtOnce
+10. 로드 밸런싱 활성화 체크 해제
+11. 배포 그룹 생성 완료
+
+### Travis CI, S3, CodeDeploy 연동
+
+Travis CI의 Build가 끝나면 S3에 zip 파일이 전송되고
+zip 파일은 /home/ec2-user/app/step2/zip로 복사되어 압출을 풀 예정
+
+Travis CI의 설정은 .travis.yml로 진행
+AWS CodeDeploy의 설정은 appspec.yml로 진행
+
+1. EC2 접속해서 디렉토리 생성
+```bash
+mkdir ~/app/step2 && mkdir ~/app/step2/zip
+```
