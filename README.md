@@ -188,3 +188,31 @@ chmod +x ./deploy.sh
 ./deploy.sh
 cat nohup.out
 ```
+
+### 외부 Security 파일 등록하기
+
+```bash
+vi /home/ec2-user/app/application-oauth.yml
+```
+
+deploy.sh 수정
+
+```bash
+# 계속 구동될 수 있도록 nohup 로 구동
+# -Dspring.config.location 스프링 파일 위치를 지정
+# application-oauth.yml 은 외부에 파일이 있기 때문에 절대경로를 사용
+nohup java -jar \
+    -Dspring.config.location=classpath:/application.yml,/home/ec2-user/app/application-oauth.yml \
+    $REPOSITORY/$JAR_NAME 2>&1 &
+```
+
+### 스프링 부트 프로젝트로 RDS 접근하기
+- 테이블 생성
+- 프로젝트 설정: MariaDB에서 사용 가능한 드라이버 추가
+- EC2 설정: 서버 내부에서 접속 정보를 관리하도록 설정
+
+1. 테스트 코드 수행 시 로그로 생성되는 쿼리를 사용하여 테이블 생성
+2. File 검색(cmd + shift + O) 스프링 세션 테이블 생성 SQL schema-mysql.sql 파일 찾기
+3. 서버에서 구동될 환경 설정파일 추가 src/main/resources/application-real.yml
+4. app 디렉토리에 application-real-db.properties 파일 생성
+5. nohup 스크립트 추가 수정
