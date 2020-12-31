@@ -176,3 +176,15 @@ cd springboot-aws-impl-alone
 ```
 
 ### 배포 스크립트 만들기
+```bash
+vi ~/app/step1/deploy.sh
+```
+
+scripts/step1_deploy.sh 내용 복사해서 붙여넣기
+
+
+```bash
+chmod +x ./deploy.sh
+./deploy.sh
+cat nohup.out
+```

@@ -7,7 +7,7 @@ log/
 transaction-logs/
 files/
 *.db
-application-oauth.yaml
+application-oauth.yml
 
 # Gradle
 # ------
