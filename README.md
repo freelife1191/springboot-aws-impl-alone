@@ -74,3 +74,87 @@ sudo vi /etc/hosts
 ```properties
 127.0.0.1   springboot-aws-impl-alone
 ```
+
+## AWS RDS
+
+MYSQL에서 MARIADB로 마이그레이션 해야 할 10가지 이유
+
+MariaDB는 MySQL 대비 장점
+- 동일 하드웨어 사양으로 MySQL보다 향상된 성능
+- 좀 더 활성화된 커뮤니티
+- 다양한 기능
+- 다양한 스토리지 엔진
+
+1. MariaDB 선택
+2. 프리티어 선택
+3. DB 인스턴스 식별자 - springboot-aws-impl-alone
+4. 사용자 이름 암호 설정
+5. 스토리지 범용(SSD) - 20
+6. 퍼블릭 엑세스 가능 - 예
+7. 초기 데이터베이스 이름 - springboot_aws_impl_alone
+
+### RDS 운영환경에 맞는 파라미터 설정하기
+- 타임존
+- Character Set
+- Max Connection
+
+utf8과 utf8mb4의 차이는 이모지 저장 가능 여부
+
+1. 파라미터 그룹 클릭
+2. 파라미터 그룹 생성 클릭
+3. 그룹이름, 설명 springboot-aws-impl-alone 입력 후 생성
+4. 생성된 파라미터 편집 
+    - time_zone - Asia/Seoul
+    - character_set_client - utf8mb4
+    - character_set_connection - utf8mb4
+    - character_set_database - utf8mb4
+    - character_set_filesystem - utf8mb4
+    - character_set_results - utf8mb4
+    - collation_connection - utf8mb4_general_ci
+    - collation_server - utf8mb4_general_ci
+    - max_connections - 150
+5. 데이터베이스 선택 후 수정 클릭
+    - DB 파라미터 그룹 위에 편집한 그룹 선택
+    - 즉시 적용
+    - 적용이 잘안되면 재부팅
+6. VPC 보안 그룹 선택
+    - MYSQL/Aurora 선택 ec2 보안 그룹 ID 복사해서 RDS 인바운드에 추가
+    - MYSQL/Aurora 선택 인바운드에 내IP 추가
+7. RDS 엔드포인트로 DB 접속
+
+현재의 character_set, collation 설정 확인
+```sql
+show variables like 'c%'
+```
+
+변경이 안된 항목 직접 변경
+```sql
+ALTER DATABASE 데이터베이스명
+CHARACTER SET = 'utf8mb4'
+COLLATE = 'utf8mb4_general_ci'
+```
+
+타임 존 확인
+```sql
+select @@time_zone, now();
+```
+
+### EC2에서 RDS에서 접근 확인
+
+EC2에 MySQL 접근 테스트를 위해 MySQL CLI 설치
+
+```bash
+sudo yum install mysql
+```
+
+RDS 접속
+```bash
+mysql -u 계정 -p -h Host 주소
+mysql -u admin -p -h springboot-aws-impl-alone.caoklolkwzss.ap-northeast-2.rds.amazonaws.com
+```
+
+데이터베이스 목록 확인
+
+```sql
+show databases;
+```
