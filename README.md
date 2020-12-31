@@ -216,3 +216,17 @@ nohup java -jar \
 3. 서버에서 구동될 환경 설정파일 추가 src/main/resources/application-real.yml
 4. app 디렉토리에 application-real-db.properties 파일 생성
 5. nohup 스크립트 추가 수정
+6. `curl localhost:8080` 테스트
+
+### EC2에서 소셜 로그인하기
+- AWS 보안 그룹 8080 열려있는지 확인
+- AWS EC2 도메인으로 접속
+   - 인스턴스의 퍼블릭 IPv4 DNS로 접속
+- 구글에 EC2 주소 등록
+- 네이버에 EC2 주소 등록
+   - 서비스 URL
+      - 로그인을 시도하는 서비스가 네이버에 등록된 서비스인지 판단하기 위한 항목
+      - 포트는 제외하고 도메인만 입력
+      - EC2 주소 등록시 localhost는 안됨
+      - 개발 단계에서는 등록하지 않는 것을 추천
+      - localhost도 하고 싶으면 네이버 서비스를 하나 더 생성해서 키를 발급
