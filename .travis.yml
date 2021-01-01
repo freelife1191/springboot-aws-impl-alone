@@ -40,8 +40,6 @@ before_deploy:
   - cd ../ && mkdir -p deploy # 상위 디렉토리로 이동후 deploy 디렉토리 생성
   - mv before-deploy/before-deploy.zip deploy/springboot-aws-impl-alone.zip # deploy로 zip파일 이동
 
-#  AKIAYQADAJ6H5OSQUYA7
-#  QrHVI8qY6Go8lUidG2i0I/JpH+k/PQ18qFZpmfs7
 # S3로 파일 업로드 혹은 CodeDeploy로 배포 등 외부 서비스와 연동될 행위들을 선언
 deploy:
   - provider: s3
