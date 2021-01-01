@@ -9,6 +9,7 @@ files/
 *.db
 application-oauth.yml
 application-real-db.yml
+keyfile
 
 # Gradle
 # ------
